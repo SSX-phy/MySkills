@@ -221,13 +221,18 @@ Use the template at `references/report-template.md`. The report opens with the *
 5. **Recommended next reads** — short list of papers worth reading after this sweep.
 6. **Crucial sources** — 3–7 papers the user should read deeply, each with link and a one-sentence justification.
 
-**Citation format.** Every factual claim ends with an inline link in the form:
+**Citation format.** Every factual claim ends with an inline link.
 
-```
-([Author Year — role](https://doi.org/...))
-```
+- **Node papers** (deeply read) are labelled with the ` — node` suffix:
+  ```
+  ([Author Year — node](https://doi.org/...))
+  ```
+- **Neighbor papers** (abstract-level) are cited *without* a role label — just author + year:
+  ```
+  ([Author Year](https://doi.org/...))
+  ```
 
-where `role` is `node` (deeply read) or `neighbor` (abstract-level). For multi-source claims, link all. **Never** use a bare arXiv ID or unlinked author-year. Use arXiv links only when no DOI exists.
+The `— node` tag is what tells the reader "this claim rests on a paper I actually read"; neighbors carry no such tag, so the absence of a tag means abstract-level support. Do not write `— neighbor` in the report. For multi-source claims, link all. **Never** use a bare arXiv ID or unlinked author-year. Use arXiv links only when no DOI exists.
 
 If hop 1's forward search was thin, add a short paragraph at the end of *State of the art* labelled "*Coverage caveat:*" naming the gap.
 

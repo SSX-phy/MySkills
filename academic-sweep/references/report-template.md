@@ -8,16 +8,16 @@
 
 The discriminative fields for this topic, as discovered from the node paper(s) and refined during hop 1.
 
-- **<Field 1 — e.g. Research method (& key params)>:** one-sentence synthesis across the corpus. ([Author Year — node](https://doi.org/...), [Author Year — neighbor](https://doi.org/...))
+- **<Field 1 — e.g. Research method (& key params)>:** one-sentence synthesis across the corpus. ([Author Year — node](https://doi.org/...), [Author Year](https://doi.org/...))
 - **<Field 2 — e.g. Quantities used to show the result>:** one-sentence synthesis. ([Author Year — node](https://doi.org/...))
-- **<Field 3 — discovered>:** one-sentence synthesis. ([Author Year — neighbor](https://doi.org/...))
-- **<Field 4 — discovered>:** one-sentence synthesis. ([Author Year — neighbor](https://doi.org/...))
+- **<Field 3 — discovered>:** one-sentence synthesis. ([Author Year](https://doi.org/...))
+- **<Field 4 — discovered>:** one-sentence synthesis. ([Author Year](https://doi.org/...))
 
 ---
 
 ## State of the art
 
-Two to three paragraphs synthesising what the corpus collectively says. Lead with the dominant framing, then alternative framings. Every factual claim ends with `([Author Year — role](https://doi.org/...))`, where `role` is `node` (deeply read) or `neighbor` (abstract-level). Multi-source claims link all sources.
+Two to three paragraphs synthesising what the corpus collectively says. Lead with the dominant framing, then alternative framings. Every factual claim ends with an inline link. Node papers (deeply read) get the ` — node` suffix: `([Author Year — node](https://doi.org/...))`. Neighbors (abstract-level) get *no* role suffix: `([Author Year](https://doi.org/...))`. The presence/absence of the `— node` tag is the signal — do not write `— neighbor`. Multi-source claims link all sources.
 
 If hop 1's forward search was thin, close this section with a short paragraph:
 
@@ -29,7 +29,7 @@ If hop 1's forward search was thin, close this section with a short paragraph:
 
 Bulleted list of points the corpus agrees on, each cited.
 
-- Claim that the corpus broadly agrees on. ([Author Year — node](https://doi.org/...), [Author Year — neighbor](https://doi.org/...))
+- Claim that the corpus broadly agrees on. ([Author Year — node](https://doi.org/...), [Author Year](https://doi.org/...))
 - Another consensus point. ([Author Year — node](https://doi.org/...))
 
 ---
@@ -38,7 +38,7 @@ Bulleted list of points the corpus agrees on, each cited.
 
 Bulleted list, with each side of the disagreement cited.
 
-- Disagreement: A says X ([Author Year — node](https://doi.org/...)); B says Y ([Author Year — neighbor](https://doi.org/...)).
+- Disagreement: A says X ([Author Year — node](https://doi.org/...)); B says Y ([Author Year](https://doi.org/...)).
 
 ---
 

@@ -3,7 +3,7 @@ name: cover-letter
 description: >
   Generate a journal submission cover letter from a manuscript file (PDF, DOCX, MD, or TXT).
   Works for any journal. Well-researched references for Nature, Science, PRL, PRB, and Elsevier
-  are bundled; all other journals use the standard 4-paragraph formalism.
+  are bundled; 
   Usage: /cover-letter <path/to/manuscript> [journal-name]
   Example: /cover-letter paper.pdf nature
   Example: /cover-letter paper.pdf "Journal of Chemical Physics"
@@ -70,7 +70,7 @@ If `text` is empty or very short (under 200 characters), the PDF likely has no t
 
 ---
 
-## Step 4 — Extract the 4-paragraph source material
+## Step 4 — Extract the source material
 
 Read the extracted text and identify the following fields. Display each one clearly before asking for confirmation:
 
@@ -114,7 +114,7 @@ Print a one-line header:
 
 ## Step 7 — Draft the cover letter
 
-Write exactly four paragraphs using the confirmed fields. Follow the formalism precisely.
+At first, list 'Manuscript: [Title]' and next line 'Authos: [Author names]'. Then the letter body.
 
 ---
 
@@ -126,7 +126,7 @@ Rules:
 - State the article type explicitly.
 - Background should be readable by an editor outside the immediate subfield.
 - The question sentence must convey *why* it needed answering.
-
+- Focus on the theme, in article introduction the background contains many relevant topics, but those not be discussed in the main text should not or shortly be mentioned here.
 ---
 
 ### Paragraph 2 — What Was Done, Main Findings, Significance
@@ -134,7 +134,7 @@ Rules:
 > [What was done — methods in one brief phrase]. [Main finding 1]. [Main finding 2 if present]. [Significance — why these findings are important and what they change or enable].
 
 Rules:
-- Methods get one phrase only.
+- Methods get one phrase only, don't list the detailed parameters.
 - State findings specifically; avoid "novel" and "important" without content.
 - The significance sentence should name what is now possible or understood that was not before.
 
@@ -142,10 +142,10 @@ Rules:
 
 ### Paragraph 3 — Relevance to the Journal
 
-> We believe the readers of [Journal] would be interested in this work because [specific argument from Step 5 — how it fulfils the journal's aims and scope, and why it matters to that readership].
+> What our work mainly shows (refer the final discussion of the main article) , and why it matters to that readership.
 
 Rules:
-- Must be specific to the named journal.
+
 - If the user typed "skip", write: *[PLACEHOLDER — please personalise: explain how this work fulfils [Journal]'s aims and scope]* and note this to the user.
 
 ---
