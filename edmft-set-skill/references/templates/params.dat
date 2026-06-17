@@ -1,0 +1,38 @@
+# params.dat — PLACEHOLDER TEMPLATE (not directly runnable).
+# Fill before use: apply defaults for $name_flag=value tokens; for $name_flag tokens
+# with no "=" (must-ask physics), ask the user. beta/nom are derived from the
+# temperature T (one filled copy per edmft-T<T>/).
+# Written in Python — once filled, `python params.dat` must parse without error.
+
+solver              = 'CTQMC'
+
+max_dmft_iterations = $max_dmft_iterations_flag=1     # DMFT steps per global iteration
+max_lda_iterations  = $max_lda_iterations_flag=100    # DFT charge steps per DMFT step
+finish              = $finish_flag=50                 # max global (charge) iterations
+
+ntail               = $ntail_flag=300                 # log-mesh points in the tail
+cc                  = $cc_flag=5e-6                   # charge convergence tolerance
+ec                  = $ec_flag=5e-6                   # energy convergence tolerance
+recomputeEF         = $recomputeEF_flag=1               #  0 fixed (insulator) / 1 metal
+
+DCs                 = $DCs_flag                        # MUST-ASK: nominal/exacty/exactd/exact/FLL
+
+wbroad              = $wbroad_flag=0.0                # only used for svd_lmax=0
+kbroad              = $kbroad_flag=0.0                # only used for svd_lmax=0
+
+# Impurity problem 0 (add iparams1, iparams2, ... for more impurities)
+iparams0={"exe"      : ["ctqmc"               , "# solver executable"],
+          "U"        : [$U_flag               , "# Coulomb repulsion F0 (eV)"],
+          "J"        : [$J_flag               , "# Hund coupling (eV)"],
+          "CoulombF" : ["$CoulombF_flag='Ising'" , "# 'Ising' (fast) or 'Full'"],
+          "beta"     : [$beta_flag            , "# 11604.534/T ; derived from T"],
+          "svd_lmax" : [$svd_lmax_flag=30     , "# SVD basis cutoff"],
+          "M"        : [$M_flag=5e6           , "# MC steps per core"],
+          "mode"     : ["$mode_flag='SH'"     , "# sampling/tail mode"],
+          "nom"      : [$nom_flag             , "# ~ 2-4*beta ; derived from beta"],
+          "tsample"  : [$tsample_flag=30      , "# measurement interval"],
+          "GlobalFlip": [$GlobalFlip_flag=5e5  , "# should less than or equal 0.1M;global-flip interval"],
+          "warmup"   : [$warmup_flag      , "#GlobalFlip/20 ; derived from GlobalFlip;  warmup MC steps"],
+          "nf0"      : [$nf0_flag             , "# MUST-ASK: nominal valence"],
+          "Nmax"     : [$Nmax_flag=500        , "# perturbation-order cutoff"],
+          }

@@ -1,0 +1,136 @@
+#!/bin/bash 
+CASE=$(basename ${PWD})
+CASEPATH=${PWD}
+INITPATH=./${CASE}
+EDMFTHEAD=./edmft
+SUBFILE=edmft_batch.slurm
+DFTFILE=dft.slurm
+PARAFILE=params.dat
+CASETYPE=0     #0 for .struct;1 for .cif
+#CASEOBJ=${shell if [ -f ${CASE}.struct ];then echo ${CASE}.struct ;elif [  -f ${CASE}.cif ] ;then echo ${CASE}.cif ;elif [  -f ${CASE}.mcif ] ;then echo ${CASE}.mcif ;fi}
+CASEOBJ=${CASE}.struct
+#CASETYPE=${shell if [ -f ${CASE}.struct ];then echo 0 ;else echo 1 ;fi}
+TMPR='120'
+#TMPR=70 '120 300 500'
+
+SOTRIGGER=0
+SOFLAG=$(if [  ${SOTRIGGER} -eq 1  ];then echo -so  ;fi)
+ROTTRIGGER=0
+
+NOMRATE=2
+DFTFLAG='-b -vxc 13 -ecut -6.0 -rkmax 7 -numk 5000'
+DMFTFLAG='-ca 1,2 -ot f,f -qs 4,4 -p 5'
+
+GFPATH=./GF
+MAXEFILE=maxent_params.dat
+SLFEPATH=./slfen
+SPECPATH=./spect
+PREPATH=./${CASE}R
+#sig.inp.16.1 sig.inp.17.1 sig.inp.18.1 sig.inp.19.1 sig.inp.20.1  sig.inp..1 
+SIGLIST='sig.inp.1.1 sig.inp.2.1 sig.inp.3.1'
+
+if [ $1 = '--all' ] ; then
+	#if [ ${CASETYPE} -eq 1 ];then pushd ${INITPATH} ; cif2struct ${CASEOBJ} ; popd ;fi
+	
+	pushd ${INITPATH} ; init_lapw ${DFTFLAG}  ; if [ ${SOTRIGGER} -eq 1 ];then initso ;fi  ; run_lapw ${SOFLAG}  ; init_dmft.py  ${DMFTFLAG}; popd
+
+	for t in ${TMPR};  do pushd ${EDMFTHEAD}-T$t ; dmft_copy.py ${CASEPATH}/${INITPATH};  if [ ${ROTTRIGGER} -eq 1 ];then findRot.py ;fi; szero.py ; sbatch ${SUBFILE} ; popd; done
+
+elif [ $1 = '--init' ] ; then
+	if [ ! -d ${INITPATH} ];then mkdir ${CASE};fi
+	cp ${CASEOBJ} ${INITPATH}
+	sed -i  "/run_dmft.py/{s/.*/run\_dmft.py \-p ${SOFLAG}\>\& nohup.dat /}" ${SUBFILE} ; 
+	sed -i  "/run_lapw/{s/.*/run\_lapw \-p ${SOFLAG}\>\& nohup.dat /}" ${DFTFILE} ;
+
+	for t in ${TMPR}  ; do \
+	if [ ! -d ${EDMFTHEAD}-T$t ];then mkdir ${EDMFTHEAD}-T$t;fi; \
+	cp ${PARAFILE}  ${EDMFTHEAD}-T$t;  cp ${SUBFILE} ${EDMFTHEAD}-T$t ; \
+	tmp="scale=10;11604.534/$t" ; beta=$(printf "%.10f" `echo $tmp|bc`) ; tmp1="${NOMRATE}*$beta" ; nom=$(printf "%.0f" `echo $tmp1|bc`) ; \
+	sed -i  "/beta/{s/.*/          \"beta\"               \: \[${beta}                  , \"\# Inverse temperature\"\],/}" ${EDMFTHEAD}-T$t/${PARAFILE} ; \
+	sed -i  "/\<nom\>/{s/.*/          \"nom\"               \: \[${nom}                  , \"\# Number of Matsubara frequency points sampled \"\],/}" ${EDMFTHEAD}-T$t/${PARAFILE} ; \
+	done
+
+elif [ $1 = '--clear' ] ; then
+	for t in ${TMPR};  do rm -rf ${EDMFTHEAD}-T$t ; done
+
+elif [ $1 = '--clean' ] ; then 
+    $0 --clear
+	rm -rf ${INITPATH}
+
+elif [ $1 = '--dft' ] ; then
+	if [ ! -d ${INITPATH} ];then mkdir ${CASE};fi
+	cp ${CASEOBJ} ${INITPATH}
+
+	cp ${DFTFILE}  ${INITPATH}
+	cp .machines ${INITPATH}
+
+	pushd ${INITPATH}; init_lapw ${DFTFLAG}  ; if [ ${SOTRIGGER} -eq 1 ];then initso ;fi  ; sbatch ${DFTFILE}  ; popd
+
+elif [ $1 = '--dftsub' ] ; then
+	cp ${DFTFILE}  ${INITPATH}
+	cp .machines ${INITPATH}
+
+	pushd ${INITPATH};  sbatch ${DFTFILE}  ; popd
+
+elif [ $1 = '--dmftinit' ] ; then
+
+	pushd ${INITPATH} ; init_dmft.py  ${DMFTFLAG}; popd
+
+elif [ $1 = '--dmftset' ] ; then
+
+	for t in ${TMPR};  do pushd ${EDMFTHEAD}-T$t ; dmft_copy.py ${CASEPATH}/${INITPATH};  if [ ${ROTTRIGGER} -eq 1 ];then findRot.py ;fi; szero.py ; popd; done
+
+elif [ $1 = '--dmftsub' ] ; then
+
+	for t in ${TMPR};  do pushd ${EDMFTHEAD}-T$t ; sbatch ${SUBFILE} ; popd; done	
+
+elif [ $1 = '--upd_stru' ] ; then
+    cp ${INITPATH}/${CASEOBJ} ./
+
+elif [ $1 = '--pre' ] ; then
+	if [ ! -d ${PREPATH} ];then mkdir ${PREPATH};fi
+
+	pushd ${PREPATH} ; dmft_copy.py ${CASEPATH}/${PREPATH} ; rm  ${CASE}.indmfl ; rm  ${CASE}.indmfi  ;init_dmft.py  ${DMFTFLAG} -a r ; popd
+
+ #elif [ $1 = '--exdm' ] ; then
+	#pushd ${PREPATH} ; x lapw0 -f  ${CASE} ; x_dmft.py lapw1 ;if [ ${SOTIGGER} -eq 1 ];then x_dmft.py lapwso ;fi  ; x_dmft.py dmft1  ; popd
+
+ #need adjustment everycase
+elif [ $1 = '--alycnt' ] ; then
+	for t in ${TMPR}  ; do \
+	if [ ! -d ${EDMFTHEAD}-T$t/maxent ];then mkdir ${EDMFTHEAD}-T$t/maxent;fi; \
+	cp ${MAXEFILE} ${EDMFTHEAD}-T$t/maxent;  \
+	pushd ${EDMFTHEAD}-T$t ; saverage.py ${SIGLIST}; cp sig.inpx maxent ; popd; \
+	pushd ${EDMFTHEAD}-T$t/maxent ; maxent_run.py sig.inpx ; popd; \
+	done
+
+ #need alycnt
+elif [ $1 = '--gf' ] ; then
+	for t in ${TMPR}  ; do \
+	if [ ! -d ${EDMFTHEAD}-T$t/GF ];then mkdir ${EDMFTHEAD}-T$t/GF;fi; \
+	pushd ${EDMFTHEAD}-T$t/GF ; echo "mpirun -np 16" > mpi_prefix.dat ; dmft_copy.py ../  ; cp ../maxent/Sig.out sig.inp ; popd; \
+	pushd ${EDMFTHEAD}-T$t/GF ; sed -i  "/matsubara/{s/.*/0 0.025 0.025 200 -5.00000 5.00000  \# matsubara, broadening-corr, broadening-noncorr, nomega, omega_min, omega_max \(in eV\)/}"  ${CASE}.indmfl  ; popd; \
+	pushd ${EDMFTHEAD}-T$t/GF ; x lapw0 -f  ${CASE}; x_dmft.py lapw1;  if [ ${SOTRIGGER} -eq 1 ];then x_dmft.py lapwso ;fi ; x_dmft.py dmft1 ; popd; \
+	done
+
+elif [ $1 = '--bd' ] ; then
+	for t in ${TMPR}  ; do \
+	if [ ! -d ${EDMFTHEAD}-T$t/bd ];then mkdir ${EDMFTHEAD}-T$t/bd;fi; \
+    cp ${CASE}.klist_band ${EDMFTHEAD}-T$t/bd;  \
+	cp -rf ${EDMFTHEAD}-T$t/GF/* ${EDMFTHEAD}-T$t/bd;  \
+	pushd ${EDMFTHEAD}-T$t/bd ; x lapw1 -f ${CASE}  -band ;  if [ ${SOTRIGGER} -eq 1 ];then x lapwso -f ${CASE} -band ; fi; x_dmft.py dmftp ; popd; \
+	done
+
+elif [ $1 = '--pltbd' ] ; then
+	for t in ${TMPR}  ; do \
+	pushd ${EDMFTHEAD}-T$t/bd ; wakplot.py  ; popd; \
+	done
+
+ #elif [ $1 = '--spec' ] ; then
+ #	if [ ! -d ${SPECPATH} ];then mkdir ${SPECPATH};fi
+ #	pushd ${SPECPATH} ; dmft_copy.py  ${CASEPATH}/${EDMFTPATH} ; x lapw1 -f ${CASE} -band ; x lapwso -f ${CASE} -band ; rm  ${CASE}.indmfl ; rm  ${CASE}.indmfi ;  popd
+ #	pushd ${SPECPATH}; init_dmft.py ${DMFTFLAG}  -a r ;  x_dmft.py dmftp 0.02 ;  wakplot.py  ;  popd
+
+else
+    echo 'argument not found'
+fi
